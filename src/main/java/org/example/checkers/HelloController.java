@@ -83,7 +83,7 @@ public class HelloController implements Initializable {
                 circle.setOpacity(0.5);
                 chessboard.add(circle, move.getRow(), move.getCol());
                 Circle finalCircle = circle;
-                circle.setOnMouseClicked(event -> movePiece(chessboard, piece, finalCircle));
+                circle.setOnMouseClicked(event -> movePiece(possibleMoves,chessboard, piece, finalCircle));
             }
         }
     }
@@ -98,7 +98,7 @@ public class HelloController implements Initializable {
         chessboard.getChildren().removeAll(circlesToRemove);
     }
 
-    private void movePiece(GridPane chessboard, Piece piece, Circle circle) {
+    private void movePiece(List<Position> possibleMoves,GridPane chessboard, Piece piece, Circle circle) {
         whiteMove = !whiteMove;
         Position currentPosition = piece.getPosition();
         Position newPosition = null;
@@ -122,11 +122,34 @@ public class HelloController implements Initializable {
         for (Node nodeToRemove : nodesToRemove) {
             chessboard.getChildren().remove(nodeToRemove);
         }
-
+        checkKill(possibleMoves,(Checkers) piece);
         update();
         removeCircles(gameboard);
     }
 
+    private void checkKill(List<Position> killPosition,Checkers piece){
+        System.out.println(piece);
+        for (Position move: killPosition){
+            if (move.getEnemyCol() != 0 && move.getEnemyRow() !=0){
+                int[] dx = {1,-1,1,-1};
+                int[] dy = {1,-1,-1,1};
+                for (int i = 0; i < 4; i++) {
+                    int newX = piece.getCurrentPosition().getRow() + dx[i];
+                    int newY = piece.getCurrentPosition().getCol() + dy[i];
+                    if (newX == move.getEnemyCol() && newY == move.getEnemyRow()){
+                        board.setPiece(move.getEnemyCol(), move.getEnemyRow(), null);
+                        List<Position> possibleMoves = piece.getPossibleMoves(board);
+                        for (Position possMove : possibleMoves){
+                            if (possMove.getEnemyRow() != 0 && possMove.getEnemyCol() != 0){
+                                whiteMove = !whiteMove;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+    }
 
     private void update() {
         List<Node> nodesToRemove = new ArrayList<>();

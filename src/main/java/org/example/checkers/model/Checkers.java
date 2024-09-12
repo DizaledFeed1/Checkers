@@ -39,7 +39,7 @@ public class Checkers extends Piece{
         }
         return possibleMoves;
     }
-    private boolean isValidPosition(int x, int y) {
+    public boolean isValidPosition(int x, int y) {
         return x >= 0 && x < 8 && y >= 0 && y < 8;
     }
 
@@ -60,12 +60,15 @@ public class Checkers extends Piece{
                         int endY = newY + dy[i];
                         int endX = newX + dx[i];
                         if (isValidPosition(endX,endY)){
-                            possibleMoves.add(new Position(endY,endX));
+                            possibleMoves.add(new Position(endY,endX,newY,newX));
                         }
                     }
                 }
             }
         }
         return possibleMoves;
+    }
+    public Position getCurrentPosition(){
+        return currentPosition;
     }
 }
