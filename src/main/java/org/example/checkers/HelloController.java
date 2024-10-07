@@ -122,12 +122,24 @@ public class HelloController implements Initializable {
         for (Node nodeToRemove : nodesToRemove) {
             chessboard.getChildren().remove(nodeToRemove);
         }
-        checkKill(possibleMoves,(Checkers) piece);
+        kill(possibleMoves,(Checkers) piece);
         update();
         removeCircles(gameboard);
     }
+    private void checkKill(Checkers piece){
+        List<Position> possibleMoves = piece.getPossibleMoves(board);
+        for (Position possMove : possibleMoves){
+            Piece pieceAtNewPosition = board.getPiece(new Position(possMove.getCol(), possMove.getRow()));
+            if (pieceAtNewPosition != null) {
+                if (pieceAtNewPosition.isWhite() != piece.isWhite()) {
+                    whiteMove = !whiteMove;
+                    break;
+                } else whiteMove = whiteMove;
+            }
+        }
+    }
 
-    private void checkKill(List<Position> killPosition,Checkers piece){
+    private void kill(List<Position> killPosition,Checkers piece){
         System.out.println(piece);
         for (Position move: killPosition){
             if (move.getEnemyCol() != 0 && move.getEnemyRow() !=0){
@@ -139,16 +151,21 @@ public class HelloController implements Initializable {
                     if (newX == move.getEnemyCol() && newY == move.getEnemyRow()){
                         board.setPiece(move.getEnemyCol(), move.getEnemyRow(), null);
                         List<Position> possibleMoves = piece.getPossibleMoves(board);
-                        for (Position possMove : possibleMoves){
-                            if (possMove.getEnemyRow() != 0 && possMove.getEnemyCol() != 0){
-                                whiteMove = !whiteMove;
-                            }
-                        }
+                        checkKill(piece);
+//                        for (Position possMove : possibleMoves){
+//                            Piece pieceAtNewPosition = board.getPiece(new Position(possMove.getEnemyRow(), possMove.getEnemyCol()));
+//                            if (pieceAtNewPosition == null){
+//                                if (piece.isWhite()){
+//                                    whiteMove = true;
+//                                }
+//                                else whiteMove = false;
+//                                break;
+//                            }
+//                        }
                     }
                 }
             }
         }
-
     }
 
     private void update() {
