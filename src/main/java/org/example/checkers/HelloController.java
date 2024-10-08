@@ -26,6 +26,9 @@ public class HelloController implements Initializable {
     private final Map<String, Image> imageCache = new HashMap<>();
     private boolean whiteMove = true;
     private Circle circle;
+    private List<Position> posibleMove;
+    private int whiteNum = 0;
+    private int blackNum = 0;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -66,11 +69,20 @@ public class HelloController implements Initializable {
     }
 
     private void handlePieceClick(Piece piece) {
-        addCircle(((Checkers) piece).getPossibleMoves(board), piece, gameboard);
+        if (whiteMove == piece.isWhite()){
+            posibleMove =  ((Checkers) piece).checkAttack(board);
+        if (posibleMove.size() != 0) {
+            addCircle(posibleMove,piece,gameboard, true);
+        }else {
+            posibleMove = ((Checkers) piece).getPossibleMoves(board);
+            addCircle(posibleMove,piece,gameboard,false);
+        }
+//        addCircle(((Checkers) piece).getPossibleMoves(board), piece, gameboard);
     }
+        }
 
-    private void addCircle(List<Position> possibleMoves, Piece piece, GridPane chessboard) {
-        if (piece.isWhite() == whiteMove) {
+    private void addCircle(List<Position> possibleMoves, Piece piece, GridPane chessboard,boolean attack) {
+//        if (piece.isWhite() == whiteMove) {
             removeCircles(chessboard);
             for (Position move : possibleMoves) {
                 Piece targetPiece = board.getPiece(new Position(move.getCol(), move.getRow()));
@@ -83,8 +95,12 @@ public class HelloController implements Initializable {
                 circle.setOpacity(0.5);
                 chessboard.add(circle, move.getRow(), move.getCol());
                 Circle finalCircle = circle;
-                circle.setOnMouseClicked(event -> movePiece(possibleMoves,chessboard, piece, finalCircle));
-            }
+                circle.setOnMouseClicked(event -> movePiece(possibleMoves,chessboard, piece, finalCircle, attack));
+//                posibleMoves =  ((Checkers) piece).checkAttack(board);
+//                if (posibleMoves.size() != 0) {
+//                    whiteMove = !whiteMove;
+//                }
+//            }
         }
     }
 
@@ -98,7 +114,7 @@ public class HelloController implements Initializable {
         chessboard.getChildren().removeAll(circlesToRemove);
     }
 
-    private void movePiece(List<Position> possibleMoves,GridPane chessboard, Piece piece, Circle circle) {
+    private void movePiece(List<Position> possibleMoves,GridPane chessboard, Piece piece, Circle circle, boolean attack) {
         whiteMove = !whiteMove;
         Position currentPosition = piece.getPosition();
         Position newPosition = null;
@@ -125,17 +141,44 @@ public class HelloController implements Initializable {
         kill(possibleMoves,(Checkers) piece);
         update();
         removeCircles(gameboard);
+        posibleMove = ((Checkers) piece).checkAttack(board);
+        if (posibleMove.size() != 0 && attack) {
+            whiteMove = !whiteMove;
+        }
     }
-    private void checkKill(Checkers piece){
-        List<Position> possibleMoves = piece.getPossibleMoves(board);
-        for (Position possMove : possibleMoves){
-            Piece pieceAtNewPosition = board.getPiece(new Position(possMove.getCol(), possMove.getRow()));
-            if (pieceAtNewPosition != null) {
-                if (pieceAtNewPosition.isWhite() != piece.isWhite()) {
-                    whiteMove = !whiteMove;
-                    break;
-                } else whiteMove = whiteMove;
+//    private void checkKill(Checkers piece){
+//        List<Position> possibleMoves = piece.getPossibleMoves(board);
+//        for (Position possMove : possibleMoves){
+//            Piece pieceAtNewPosition = board.getPiece(new Position(possMove.getCol(), possMove.getRow()));
+//            if (pieceAtNewPosition != null) {
+//                if (pieceAtNewPosition.isWhite() != piece.isWhite()) {
+//                    whiteMove = !whiteMove;
+//                    break;
+//                } else whiteMove = whiteMove;
+//            }
+//        }
+//    }
+
+    private void checkWin(){
+        whiteNum = 0;
+        blackNum = 0;
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                Piece piece = board.getPiece(new Position(row, col));
+                if (piece != null) {
+                    if (piece.isWhite()) {
+                        whiteNum++;
+                    } else if (!piece.isWhite()) {
+                        blackNum++;
+                    }
+                }
             }
+        }
+        if (whiteNum == 0){
+            System.out.println("Чёрные вин");
+        }
+        else if(blackNum == 0){
+            System.out.println("Белые вин");
         }
     }
 
@@ -150,8 +193,7 @@ public class HelloController implements Initializable {
                     int newY = piece.getCurrentPosition().getCol() + dy[i];
                     if (newX == move.getEnemyCol() && newY == move.getEnemyRow()){
                         board.setPiece(move.getEnemyCol(), move.getEnemyRow(), null);
-                        List<Position> possibleMoves = piece.getPossibleMoves(board);
-                        checkKill(piece);
+//                        checkKill(piece);
 //                        for (Position possMove : possibleMoves){
 //                            Piece pieceAtNewPosition = board.getPiece(new Position(possMove.getEnemyRow(), possMove.getEnemyCol()));
 //                            if (pieceAtNewPosition == null){
@@ -166,6 +208,7 @@ public class HelloController implements Initializable {
                 }
             }
         }
+        checkWin();
     }
 
     private void update() {

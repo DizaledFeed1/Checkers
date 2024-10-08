@@ -24,8 +24,8 @@ public class Checkers extends Piece{
     }
     public List<Position> getPossibleMoves(GameBoard board) {
         List<Position> possibleMoves = new ArrayList<>();
-        possibleMoves = checkAttack(board);
-        if (possibleMoves.size() == 0) {
+//        possibleMoves = checkAttack(board);
+//        if (possibleMoves.size() == 0) {
             int x = currentPosition.getRow();
             int y = currentPosition.getCol();
             int newX = x + (isWhite() ? -1 : 1);
@@ -36,14 +36,14 @@ public class Checkers extends Piece{
             if (isValidPosition(newX, newY - 2)) {
                 possibleMoves.add(new Position(y - 1, x + (isWhite() ? -1 : 1)));
             }
-        }
+//        }
         return possibleMoves;
     }
     public boolean isValidPosition(int x, int y) {
         return x >= 0 && x < 8 && y >= 0 && y < 8;
     }
 
-    private List<Position> checkAttack(GameBoard board){
+    public List<Position> checkAttack(GameBoard board){
         List<Position> possibleMoves = new ArrayList<>();
         int[] dx = {1,-1,1,-1};
         int[] dy = {1,-1,-1,1};
@@ -60,7 +60,11 @@ public class Checkers extends Piece{
                         int endY = newY + dy[i];
                         int endX = newX + dx[i];
                         if (isValidPosition(endX,endY)){
-                            possibleMoves.add(new Position(endY,endX,newY,newX));
+                            Position enwPosition =  new Position(endX,endY);
+                            Piece pieceAtEndPosition = board.getPiece(enwPosition);
+                            if (pieceAtEndPosition == null) {
+                                possibleMoves.add(new Position(endY, endX, newY, newX));
+                            }
                         }
                     }
                 }
