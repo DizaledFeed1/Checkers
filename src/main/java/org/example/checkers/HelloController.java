@@ -3,6 +3,7 @@ package org.example.checkers;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -22,6 +23,7 @@ import java.util.*;
 public class HelloController implements Initializable {
     @FXML
     private GridPane gameboard;
+    Alert alert = new Alert(Alert.AlertType.INFORMATION);
     private GameBoard board;
     private final Map<String, Image> imageCache = new HashMap<>();
     private boolean whiteMove = true;
@@ -37,6 +39,8 @@ public class HelloController implements Initializable {
     }
 
     private void initializeBoard() {
+        alert.setTitle("Game Result");
+        alert.setHeaderText(null);
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
                 StackPane square = new StackPane();
@@ -146,18 +150,6 @@ public class HelloController implements Initializable {
             whiteMove = !whiteMove;
         }
     }
-//    private void checkKill(Checkers piece){
-//        List<Position> possibleMoves = piece.getPossibleMoves(board);
-//        for (Position possMove : possibleMoves){
-//            Piece pieceAtNewPosition = board.getPiece(new Position(possMove.getCol(), possMove.getRow()));
-//            if (pieceAtNewPosition != null) {
-//                if (pieceAtNewPosition.isWhite() != piece.isWhite()) {
-//                    whiteMove = !whiteMove;
-//                    break;
-//                } else whiteMove = whiteMove;
-//            }
-//        }
-//    }
 
     private void checkWin(){
         whiteNum = 0;
@@ -175,10 +167,12 @@ public class HelloController implements Initializable {
             }
         }
         if (whiteNum == 0){
-            System.out.println("Чёрные вин");
+            alert.setContentText("Чёрные выиграли");
+            alert.showAndWait();
         }
         else if(blackNum == 0){
-            System.out.println("Белые вин");
+            alert.setContentText("Белые выиграли");
+            alert.showAndWait();
         }
     }
 
@@ -193,17 +187,6 @@ public class HelloController implements Initializable {
                     int newY = piece.getCurrentPosition().getCol() + dy[i];
                     if (newX == move.getEnemyCol() && newY == move.getEnemyRow()){
                         board.setPiece(move.getEnemyCol(), move.getEnemyRow(), null);
-//                        checkKill(piece);
-//                        for (Position possMove : possibleMoves){
-//                            Piece pieceAtNewPosition = board.getPiece(new Position(possMove.getEnemyRow(), possMove.getEnemyCol()));
-//                            if (pieceAtNewPosition == null){
-//                                if (piece.isWhite()){
-//                                    whiteMove = true;
-//                                }
-//                                else whiteMove = false;
-//                                break;
-//                            }
-//                        }
                     }
                 }
             }
